@@ -1,0 +1,26 @@
+# Root .gitignore
+node_modules/
+vendor/
+.env
+*.log
+.DS_Store
+*.lock
+
+# Client-specific
+client/node_modules/
+client/dist/
+client/build/
+client/.env
+client/.env.local
+client/.env.*.local
+
+# Server-specific
+server/node_modules/
+server/vendor/
+server/.env
+server/storage/logs/*
+server/storage/framework/
+server/storage/cache/
+server/bootstrap/cache/
+server/public/storage
+server/composer.lock
