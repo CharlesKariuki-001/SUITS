@@ -24,14 +24,14 @@ interface AuthProviderProps {
   children: ReactNode;
 }
 
-// Sample users for demo - in a real app, these would be stored in a database
-const sampleUsers = [
+// Sample users for demo - replace with backend API in production
+const sampleUsers: (User & { password: string })[] = [
   {
     id: 1,
     email: 'admin@kenyabespoke.com',
     name: 'Admin User',
     password: 'admin123',
-    role: 'admin' as const,
+    role: 'admin',
   },
 ];
 
@@ -43,40 +43,47 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     const savedUser = localStorage.getItem('user');
     if (savedUser) {
       try {
-        const parsedUser = JSON.parse(savedUser);
-        setUser(parsedUser);
+        const parsedUser: User = JSON.parse(savedUser);
+        if (parsedUser.id && parsedUser.email && parsedUser.name && parsedUser.role) {
+          setUser(parsedUser);
+        } else {
+          console.warn('Invalid user data in localStorage, clearing it.');
+          localStorage.removeItem('user');
+        }
       } catch (error) {
         console.error('Failed to parse user from localStorage:', error);
+        localStorage.removeItem('user');
       }
     }
   }, []);
 
   const login = async (email: string, password: string): Promise<boolean> => {
-    // Simulate API call with setTimeout
-    return new Promise(resolve => {
-      setTimeout(() => {
-        const foundUser = sampleUsers.find(
-          u => u.email === email && u.password === password
-        );
+    try {
+      // Simulate API call (replace with real API call in production)
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      const foundUser = sampleUsers.find(
+        u => u.email.toLowerCase() === email.toLowerCase() && u.password === password
+      );
 
-        if (foundUser) {
-          // Remove password before storing in state/localStorage
-          const { password: _, ...userWithoutPassword } = foundUser;
-          setUser(userWithoutPassword);
-          localStorage.setItem('user', JSON.stringify(userWithoutPassword));
-          resolve(true);
-        } else {
-          resolve(false);
-        }
-      }, 1000);
-    });
+      if (foundUser) {
+        // Remove password before storing
+        const { password: _, ...userWithoutPassword } = foundUser;
+        setUser(userWithoutPassword);
+        localStorage.setItem('user', JSON.stringify(userWithoutPassword));
+        return true;
+      }
+      return false;
+    } catch (error) {
+      console.error('Login failed:', error);
+      return false;
+    }
   };
 
   const register = async (name: string, email: string, password: string): Promise<boolean> => {
-    // Disable registration for users since this is a free website with only admin accounts
-    return new Promise(resolve => {
-      resolve(false); // Registration not allowed
-    });
+    // Log parameters to suppress TS6133 and aid debugging
+    console.log('Registration attempt:', { name, email, password });
+    // Registration is disabled for this free website with only admin accounts
+    return false;
   };
 
   const logout = () => {

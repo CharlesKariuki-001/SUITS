@@ -1,135 +1,101 @@
-import { createContext, useContext, useState, useEffect } from 'react';
+import React, {
+  createContext,
+  useContext,
+  useState,
+  useEffect,
+  ReactNode,
+} from 'react';
 
-/**
- * Interface for items in the cart, supporting both standard and custom products.
- */
-interface CartItem {
+export interface CartItem {
   id: number;
   name: string;
-  description?: string;
   price: number;
-  quantity?: number;
+  quantity: number;
   itemType: 'standard' | 'custom';
-  image?: string;
-  customizations?: {
-    size?: string;
-    color?: string;
-    fitStyle?: string;
-    bottomStyle?: 'trouser' | 'skirt';
-    additionalNotes?: string;
-    measurements?: {
-      chest: string;
-      waist: string;
-      inseam?: string; // Optional, not used in CustomTailoring.tsx
-      shoulder: string;
-    };
-  };
-  product?: {
-    id: number;
-    name: string;
-    price: number;
-    category: string;
-    sizes: string[];
-    colors: string[];
-    imageUrls: string[];
-    description?: string;
-  };
+  imageUrls?: string[];
+  description?: string;
+  customDescription?: string;
+  fabric?: string;
 }
 
-/**
- * Interface for the cart context, defining available methods and state.
- */
 interface CartContextType {
   cart: CartItem[];
   addToCart: (item: CartItem) => void;
-  updateCart: (cart: CartItem[]) => void;
-  removeFromCart: (id: number) => void;
+  updateCart: (items: CartItem[]) => void;
   clearCart: () => void;
+  updateCartItem: (id: number, newQuantity: number) => void;
+  removeFromCart: (id: number) => void;
 }
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
 
-/**
- * Provides cart context to the application, managing cart state with localStorage.
- * @param children - React components to be wrapped by the provider.
- */
-export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+export const CartProvider: React.FC<{ children: ReactNode }> = ({
+  children,
+}) => {
   const [cart, setCart] = useState<CartItem[]>(() => {
-    try {
-      const savedCart = localStorage.getItem('cart');
-      if (savedCart) {
-        const parsedCart = JSON.parse(savedCart);
-        return Array.isArray(parsedCart) ? parsedCart : [];
-      }
-    } catch (error) {
-      console.error('Failed to parse cart from localStorage:', error);
-    }
-    return [];
+    const savedCart = localStorage.getItem('cart');
+    return savedCart ? JSON.parse(savedCart) : [];
   });
 
   useEffect(() => {
-    try {
-      localStorage.setItem('cart', JSON.stringify(cart));
-    } catch (error) {
-      console.error('Failed to save cart to localStorage:', error);
-    }
+    localStorage.setItem('cart', JSON.stringify(cart));
   }, [cart]);
 
-  /**
-   * Adds an item to the cart, incrementing quantity if it already exists.
-   * @param item - The item to add to the cart.
-   */
   const addToCart = (item: CartItem) => {
     setCart((prevCart) => {
-      const existingItem = prevCart.find(
-        (cartItem) => cartItem.id === item.id && cartItem.itemType === item.itemType
-      );
-      if (existingItem) {
-        return prevCart.map((cartItem) =>
+      const existingItemIndex = prevCart.findIndex(
+        (cartItem) =>
           cartItem.id === item.id && cartItem.itemType === item.itemType
-            ? { ...cartItem, quantity: (cartItem.quantity || 1) + (item.quantity || 1) }
-            : cartItem
-        );
+      );
+      if (existingItemIndex > -1) {
+        const updatedCart = [...prevCart];
+        updatedCart[existingItemIndex] = {
+          ...updatedCart[existingItemIndex],
+          quantity:
+            updatedCart[existingItemIndex].quantity + (item.quantity || 1),
+        };
+        return updatedCart;
       }
       return [...prevCart, { ...item, quantity: item.quantity || 1 }];
     });
   };
 
-  /**
-   * Updates the entire cart with a new array of items.
-   * @param cart - The new cart items to set.
-   */
-  const updateCart = (cart: CartItem[]) => {
-    setCart(cart);
+  const updateCart = (items: CartItem[]) => {
+    setCart(items);
   };
 
-  /**
-   * Removes an item from the cart by ID.
-   * @param id - The ID of the item to remove.
-   */
-  const removeFromCart = (id: number) => {
-    setCart((prevCart) => prevCart.filter((item) => item.id !== id));
-  };
-
-  /**
-   * Clears all items from the cart.
-   */
   const clearCart = () => {
     setCart([]);
   };
 
+  const updateCartItem = (id: number, newQuantity: number) => {
+    setCart((prevCart) =>
+      prevCart.map((item) =>
+        item.id === id ? { ...item, quantity: newQuantity } : item
+      )
+    );
+  };
+
+  const removeFromCart = (id: number) => {
+    setCart((prevCart) => prevCart.filter((item) => item.id !== id));
+  };
+
   return (
-    <CartContext.Provider value={{ cart, addToCart, updateCart, removeFromCart, clearCart }}>
+    <CartContext.Provider
+      value={{
+        cart,
+        addToCart,
+        updateCart,
+        clearCart,
+        updateCartItem,
+        removeFromCart,
+      }}
+    >
       {children}
     </CartContext.Provider>
   );
 };
 
-/**
- * Hook to access the cart context.
- * @returns The cart context with cart state and methods.
- * @throws Error if used outside a CartProvider.
- */
 export const useCart = (): CartContextType => {
   const context = useContext(CartContext);
   if (!context) {

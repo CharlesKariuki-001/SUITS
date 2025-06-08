@@ -4,19 +4,20 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration
+class CreateSubscribersTable extends Migration
 {
-    public function up(): void
+    public function up()
     {
         Schema::create('subscribers', function (Blueprint $table) {
             $table->id();
             $table->string('email')->unique();
-            $table->timestamp('created_at')->nullable();
+            $table->boolean('verified')->default(false);
+            $table->timestamps();
         });
     }
 
-    public function down(): void
+    public function down()
     {
         Schema::dropIfExists('subscribers');
     }
-};
+}

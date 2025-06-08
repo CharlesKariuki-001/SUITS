@@ -4,9 +4,8 @@ import { ChevronRight, Scissors, Shirt, Calendar } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Button from '../components/ui/Button';
 import axios from 'axios';
-import { useCart } from '../context/CartContext';
+import { useCart, CartItem } from '../context/CartContext';
 
-// Interface for API response
 interface CustomTailoringResponse {
   message: string;
   data: {
@@ -55,7 +54,6 @@ const CustomTailoring: React.FC = () => {
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState('');
 
-  // Fabric-based pricing (KES)
   const fabricPrices: { [key: string]: number } = {
     'Normal Quality Plain Fabric': 12000,
     'Standard Quality Plain Fabric': 13000,
@@ -63,7 +61,6 @@ const CustomTailoring: React.FC = () => {
     'Super Wool Fabric': 25000,
   };
 
-  // Client-side validation
   const validateForm = () => {
     if (!form.name.trim()) return 'Name is required';
     if (!form.phone.trim()) return 'Phone number is required';
@@ -84,6 +81,7 @@ const CustomTailoring: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (isSubmitting) return;
     setError('');
     setSuccess(false);
 
@@ -113,44 +111,31 @@ const CustomTailoring: React.FC = () => {
       formData.append('additional_description', form.additionalDescription);
       if (image) formData.append('image', image);
 
-      const response = await axios.post(
-        'http://127.0.0.1:8000/api/custom-tailoring',
+      const apiUrl = import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000';
+      const response = await axios.post<CustomTailoringResponse>(
+        `${apiUrl}/api/custom-tailoring`,
         formData,
         { headers: { 'Content-Type': 'multipart/form-data' } }
       );
 
-      // Debug logs
-      console.log('Full Response:', response);
-      console.log('Response Data:', response.data);
+      const responseData = response.data.data;
 
-      // Parse response.data if it's a string
-      let responseData: CustomTailoringResponse;
-      if (typeof response.data === 'string') {
-        // Remove ```php\n and trailing ``` if present
-        const cleanedData = response.data.replace(/```php\n|```/g, '');
-        responseData = JSON.parse(cleanedData) as CustomTailoringResponse;
-      } else {
-        responseData = response.data as CustomTailoringResponse;
-      }
-
-      // Debug parsed data
-      console.log('Parsed Response Data:', responseData);
-
-      // Check if data and id exist
-      if (!responseData.data || !responseData.data.id) {
+      if (!responseData || !('id' in responseData)) {
         throw new Error('Invalid response: Missing data or id');
       }
 
-      const cartItem = {
-        id: responseData.data.id,
+      const cartItem: CartItem = {
+        id: responseData.id,
         name: 'Custom Tailored Suit',
         description: `Color: ${form.color}, Size: ${form.size}, Fit: ${form.fitStyle}, Fabric: ${form.fabric}, Lapels: ${form.lapels}${isWomensSuit ? `, Bottom: ${form.bottomStyle}` : ''}`,
         price: fabricPrices[form.fabric],
-        itemType: 'custom' as const,
+        itemType: 'custom',
+        quantity: 1,
+        fabric: form.fabric,
+        customDescription: form.additionalDescription || undefined,
       };
 
       addToCart(cartItem);
-
       setForm({
         name: '',
         phone: '',
@@ -169,7 +154,6 @@ const CustomTailoring: React.FC = () => {
       });
       setImage(null);
       setSuccess(true);
-
       navigate('/cart', { state: { selectedItem: cartItem } });
     } catch (err: any) {
       console.error('Error submitting measurements:', err);
@@ -184,13 +168,11 @@ const CustomTailoring: React.FC = () => {
     }
   };
 
-  // Animation for suit visualization
   const suitVariants = {
     initial: { opacity: 0, scale: 0.8 },
     animate: { opacity: 1, scale: 1, transition: { duration: 0.5 } },
   };
 
-  // Fit style scaling
   const fitScale = {
     Slim: 0.95,
     Regular: 1,
@@ -200,7 +182,6 @@ const CustomTailoring: React.FC = () => {
 
   return (
     <div className="bg-gray-900 min-h-screen">
-      {/* Hero Section */}
       <motion.section
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
@@ -247,12 +228,10 @@ const CustomTailoring: React.FC = () => {
         </div>
       </motion.section>
 
-      {/* Measurement Form and Visualization */}
       <section className="py-16 bg-gray-950">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-            {/* Form Section */}
-            <div className="max-w-xl">
+            <div className="max-w-xl mx-auto">
               <h2 className="text-3xl font-bold text-white mb-6 text-center">
                 Submit Your Measurements
               </h2>
@@ -261,7 +240,6 @@ const CustomTailoring: React.FC = () => {
               </p>
               {error && <p className="text-red-500 text-center mb-4">{error}</p>}
               <form onSubmit={handleSubmit} className="space-y-6">
-                {/* Personal Details */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
                     <label className="block text-sm text-gray-300 mb-1">Name</label>
@@ -297,7 +275,6 @@ const CustomTailoring: React.FC = () => {
                     required
                   />
                 </div>
-                {/* Measurements */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
                     <label className="block text-sm text-gray-300 mb-1">Chest (cm)</label>
@@ -344,7 +321,6 @@ const CustomTailoring: React.FC = () => {
                     />
                   </div>
                 </div>
-                {/* Suit Preferences */}
                 <div>
                   <label className="block text-sm text-gray-300 mb-1">Suit Type</label>
                   <select
@@ -408,7 +384,7 @@ const CustomTailoring: React.FC = () => {
                     <option value="Loose">Loose</option>
                   </select>
                 </div>
-                {isWomensSuit && (
+                plantersuit && (
                   <div>
                     <label className="block text-sm text-gray-300 mb-1">Bottom Style</label>
                     <select
@@ -422,7 +398,7 @@ const CustomTailoring: React.FC = () => {
                       <option value="skirt">Skirt</option>
                     </select>
                   </div>
-                )}
+                )
                 <div>
                   <label className="block text-sm text-gray-300 mb-1">Fabric</label>
                   <select
@@ -430,25 +406,24 @@ const CustomTailoring: React.FC = () => {
                     onChange={(e) => setForm({ ...form, fabric: e.target.value })}
                     className="w-full bg-gray-800 text-white border border-gray-700 rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-yellow-500"
                   >
-                    <option>Normal Quality Plain Fabric</option>
-                    <option>Standard Quality Plain Fabric</option>
-                    <option>High Check Fabrics</option>
-                    <option>Super Wool Fabric</option>
+                    <option value="Normal Quality Plain Fabric">Normal Quality Plain Fabric</option>
+                    <option value="Standard Quality Plain Fabric">Standard Quality Plain Fabric</option>
+                    <option value="High Check Fabrics">High Check Fabrics</option>
+                    <option value="Super Wool Fabric">Super Wool Fabric</option>
                   </select>
                 </div>
                 <div>
-                  <label className="block wife's text-sm text-gray-300 mb-1">Lapels</label>
+                  <label className="block text-sm text-gray-300 mb-1">Lapels</label>
                   <select
                     value={form.lapels}
                     onChange={(e) => setForm({ ...form, lapels: e.target.value })}
                     className="w-full bg-gray-800 text-white border border-gray-700 rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-yellow-500"
                   >
-                    <option>Notch</option>
-                    <option>Peak</option>
-                    <option>Shawl</option>
+                    <option value="Notch">Notch</option>
+                    <option value="Peak">Peak</option>
+                    <option value="Shawl">Shawl</option>
                   </select>
                 </div>
-                {/* Optional Clarification Form */}
                 <div>
                   <label className="block text-sm text-gray-300 mb-1">Additional Description (Optional)</label>
                   <textarea
@@ -493,8 +468,6 @@ const CustomTailoring: React.FC = () => {
                 </AnimatePresence>
               </form>
             </div>
-
-            {/* Suit Visualization */}
             <div className="flex justify-center items-center">
               <motion.div
                 key={`${form.color}-${form.fitStyle}-${form.lapels}-${form.bottomStyle}`}
@@ -506,7 +479,6 @@ const CustomTailoring: React.FC = () => {
                   transform: `scale(${fitScale[form.fitStyle as keyof typeof fitScale] || 1})`,
                 }}
               >
-                {/* Jacket */}
                 <motion.div
                   className="absolute w-full h-48 rounded-t-lg"
                   style={{
@@ -514,7 +486,6 @@ const CustomTailoring: React.FC = () => {
                     borderBottom: form.lapels === 'Notch' ? '10px solid #333' : form.lapels === 'Peak' ? '10px solid #555' : '10px solid #222',
                   }}
                 />
-                {/* Bottom (Trousers or Skirt) */}
                 <motion.div
                   className="absolute top-48 w-full h-48"
                   style={{
@@ -522,7 +493,6 @@ const CustomTailoring: React.FC = () => {
                     borderRadius: form.bottomStyle === 'skirt' ? '0 0 50% 50%' : '0',
                   }}
                 />
-                {/* Animation Effects */}
                 <motion.div
                   className="absolute inset-0 bg-yellow-500 opacity-10"
                   animate={{ opacity: [0.1, 0.3, 0.1] }}
@@ -533,21 +503,20 @@ const CustomTailoring: React.FC = () => {
           </div>
         </div>
       </section>
-
-      {/* Why Choose Bespoke Section */}
       <section className="py-16 bg-gray-900">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <h2 className="text-3xl font-bold text-white mb-8 text-center">
-            Why Choose Bespoke?
+            Why Choose Our Bespoke?
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             <motion.div
-              initial={{ opacity: 0, y: 50 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.5 }}
-              className="text-center"
-            >
+  initial={{ opacity: 0, y: 50 }}
+  whileInView={{ opacity: 1, y: 0 }}
+  viewport={{ once: true }}
+  transition={{ duration: 0.5 }}
+  className="text-center"
+>
+
               <Scissors className="text-yellow-500 mx-auto mb-4" size={40} />
               <h3 className="text-xl font-semibold text-white mb-2">Perfect Fit</h3>
               <p className="text-gray-300">
@@ -583,8 +552,6 @@ const CustomTailoring: React.FC = () => {
           </div>
         </div>
       </section>
-
-      {/* FAQ Section */}
       <section className="py-16 bg-gray-950">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <h2 className="text-3xl font-bold text-white mb-8 text-center">
@@ -633,8 +600,6 @@ const CustomTailoring: React.FC = () => {
           </div>
         </div>
       </section>
-
-      {/* CTA Section */}
       <section className="py-16 bg-gray-900">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <motion.h2

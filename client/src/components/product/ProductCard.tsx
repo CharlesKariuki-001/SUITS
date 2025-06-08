@@ -1,4 +1,3 @@
-import React from 'react';
 import { Link } from 'react-router-dom';
 import { Product } from '../../types';
 import Button from '../ui/Button';
@@ -11,7 +10,6 @@ interface ProductCardProps {
 const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
   const { addToCart } = useCart();
 
-  // Format price (e.g., 24999 -> 24,999)
   const formattedPrice = new Intl.NumberFormat('en-KE', {
     style: 'currency',
     currency: 'KES',
@@ -21,10 +19,17 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
   const handleAddToCart = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    addToCart(product.id);
+    addToCart({
+      id: product.id,
+      name: product.name,
+      price: product.price,
+      quantity: 1,
+      itemType: 'standard',
+      imageUrls: product.imageUrls,
+      description: product.description,
+    });
   };
 
-  // Fallback for missing image or description
   const imageUrl = product.imageUrls && product.imageUrls[0] 
     ? product.imageUrls[0] 
     : 'https://via.placeholder.com/300?text=No+Image';

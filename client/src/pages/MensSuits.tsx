@@ -1,9 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import Button from '../components/ui/Button';
+import { useCart } from '../context/CartContext';
 
-// Placeholder image for missing images
 const placeholderImage = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=';
 
 interface Product {
@@ -31,43 +31,20 @@ interface CartItem {
 
 const MensSuits: React.FC = () => {
   const navigate = useNavigate();
+  const { addToCart } = useCart();
   const [imageIndices, setImageIndices] = useState({
     normalPlain: 0,
     standardPlain: 0,
     highCheck: 0,
     superWool: 0,
   });
-
-  // If images are in src/assets/images/, import them like this:
-  /*
-  import normalPlain1 from '../assets/images/MensSuitNormalPlain-1.png';
-  import normalPlain2 from '../assets/images/MensSuitNormalPlain-2.png';
-  import normalPlain3 from '../assets/images/MensSuitNormalPlain-3.png';
-  import normalPlain4 from '../assets/images/MensSuitNormalPlain-4.png';
-  import normalPlain5 from '../assets/images/MensSuitNormalPlain-5.png';
-  import standardPlain1 from '../assets/images/MensSuitStandardPlain-1.png';
-  import standardPlain2 from '../assets/images/MensSuitStandardPlain-2.png';
-  import standardPlain3 from '../assets/images/MensSuitStandardPlain-3.png';
-  import standardPlain4 from '../assets/images/MensSuitStandardPlain-4.png';
-  import standardPlain5 from '../assets/images/MensSuitStandardPlain-5.png';
-  import highCheck1 from '../assets/images/MensSuitHighCheck-1.png';
-  import highCheck2 from '../assets/images/MensSuitHighCheck-2.png';
-  import highCheck3 from '../assets/images/MensSuitHighCheck-3.png';
-  import highCheck4 from '../assets/images/MensSuitHighCheck-4.png';
-  import highCheck5 from '../assets/images/MensSuitHighCheck-5.png';
-  import superWool1 from '../assets/images/MensSuitSuperWool-1.png';
-  import superWool2 from '../assets/images/MensSuitSuperWool-2.png';
-  import superWool3 from '../assets/images/MensSuitSuperWool-3.png';
-  import superWool4 from '../assets/images/MensSuitSuperWool-4.png';
-  import superWool5 from '../assets/images/MensSuitSuperWool-5.png';
-  import menHero from '../assets/images/Men.jpg';
-  */
+  const [isAdding, setIsAdding] = useState(false);
 
   const products: Product[] = [
     {
       id: 1,
       name: 'Normal Quality Plain Fabric Suit',
-      price: 12000,
+      price: 12500,
       category: 'Men',
       sizes: ['S', 'M', 'L', 'XL'],
       colors: ['Black', 'Navy', 'Grey', 'White'],
@@ -77,14 +54,13 @@ const MensSuits: React.FC = () => {
         '/assets/images/MensSuitNormalPlain-3.png',
         '/assets/images/MensSuitNormalPlain-4.png',
         '/assets/images/MensSuitNormalPlain-5.png',
-        // If using src, replace with: [normalPlain1, normalPlain2, normalPlain3, normalPlain4, normalPlain5],
       ],
-      description: 'A versatile and affordable suit crafted from normal quality plain fabric. Ideal for everyday elegance with a clean, classic design. Available in all colors, negotiable price starting at 12,000 KES.',
+      description: 'A versatile and affordable suit crafted from normal quality plain fabric. Ideal for everyday elegance with a clean, classic design. Available in all colors, price starting at 12,500 KES',
     },
     {
       id: 2,
       name: 'Standard Quality Plain Fabric Suit',
-      price: 13000,
+      price: 13500,
       category: 'Men',
       sizes: ['S', 'M', 'L', 'XL'],
       colors: ['Black', 'Navy', 'Grey', 'White'],
@@ -94,14 +70,13 @@ const MensSuits: React.FC = () => {
         '/assets/images/MensSuitStandardPlain-3.png',
         '/assets/images/MensSuitStandardPlain-4.png',
         '/assets/images/MensSuitStandardPlain-5.png',
-        // If using src, replace with: [standardPlain1, standardPlain2, standardPlain3, standardPlain4, standardPlain5],
       ],
-      description: 'A reliable suit crafted from standard quality plain fabric, offering a balance of durability and style. Perfect for versatile wear. Available in all colors, negotiable price starting at 13,000 KES.',
+      description: 'A reliable suit crafted from standard quality plain fabric, offering a balance of durability and style. Perfect for versatile wear. Available in all colors, price starting at 13,500 KES.',
     },
     {
       id: 3,
       name: 'High Check Fabrics Suit',
-      price: 15000,
+      price: 15500,
       category: 'Men',
       sizes: ['S', 'M', 'L', 'XL'],
       colors: ['Black', 'Navy', 'Grey', 'White'],
@@ -111,26 +86,24 @@ const MensSuits: React.FC = () => {
         '/assets/images/MensSuitHighCheck-3.png',
         '/assets/images/MensSuitHighCheck-4.png',
         '/assets/images/MensSuitHighCheck-5.png',
-        // If using src, replace with: [highCheck1, highCheck2, highCheck3, highCheck4, highCheck5],
       ],
-      description: 'A stylish suit with a high check pattern, blending modern design with classic tailoring. Ideal for making a statement. Available in all colors, negotiable price starting at 15,000 KES.',
+      description: 'A stylish suit with a high check pattern, blending modern design with classic tailoring. Ideal for making a statement. Available in all colors, price starting at 15,500 KES',
     },
     {
       id: 4,
       name: 'Super Wool Fabric Suit',
-      price: 25000,
+      price: 25500,
       category: 'Men',
       sizes: ['S', 'M', 'L', 'XL'],
       colors: ['Black', 'Navy', 'Grey', 'White'],
       imageUrls: [
         '/assets/images/MensSuitSuperWool-1.png',
         '/assets/images/MensSuitSuperWool-2.png',
-        '/assets/images/MensSuitSuperWool-3.png',
-        '/assets/images/MensSuitSuperWool-4.png',
-        '/assets/images/MensSuitSuperWool-5.png',
-        // If using src, replace with: [superWool1, superWool2, superWool3, superWool4, superWool5],
+        '/assets/images/MensSuitSuperWool.png',
+        '/assets/images/imagesMensSuitSuperGrok.png',
+        '/assets/images/grokSuitMens.png',
       ],
-      description: 'A luxurious suit made from premium super wool fabric, offering unmatched softness and durability. Perfect for formal occasions. Available in all colors, negotiable price starting at 25,000 KES.',
+      description: 'A luxurious suit made from premium super wool fabric, offering unmatched softness and durability. Perfect for formal occasions. Available in all colors, price starting at 25,500 KES.',
     },
   ];
 
@@ -150,38 +123,41 @@ const MensSuits: React.FC = () => {
     });
   };
 
-  const handleAddToCart = (product: Product) => {
-    const cart = JSON.parse(localStorage.getItem('cart') || '[]') as CartItem[];
-    const cartItem: CartItem = {
-      id: product.id,
-      name: product.name,
-      price: product.price,
-      quantity: 1,
-      imageUrls: product.imageUrls,
-      description: product.description,
-      itemType: 'standard',
-      customDescription: '',
-      fabric: product.name, // Pass fabric name for delivery estimation
-    };
-    const existingItemIndex = cart.findIndex(
-      (item) => item.id === product.id && item.itemType === 'standard'
-    );
-    if (existingItemIndex > -1) {
-      cart[existingItemIndex].quantity += 1;
-    } else {
-      cart.push(cartItem);
-    }
-    localStorage.setItem('cart', JSON.stringify(cart));
-    navigate('/cart', { state: { selectedItem: cartItem } });
-  };
+  const handleAddToCart = useCallback(
+    (product: Product) => {
+      if (isAdding) return;
+      setIsAdding(true);
+
+      const cartItem: CartItem = {
+        id: product.id,
+        name: product.name,
+        price: product.price,
+        quantity: 1,
+        imageUrls: product.imageUrls,
+        description: product.description,
+        itemType: 'standard',
+        customDescription: '',
+        fabric: product.name,
+      };
+      addToCart(cartItem);
+      navigate('/cart', { state: { selectedItem: cartItem } });
+
+      setTimeout(() => setIsAdding(false), 500);
+    },
+    [addToCart, navigate, isAdding]
+  );
 
   const renderProductCard = (product: Product, fabricKey: string) => {
     const currentIndex = imageIndices[fabricKey as keyof typeof imageIndices];
-    const price = `${product.price} KES`;
+    const price = new Intl.NumberFormat('en-KE', {
+      style: 'currency',
+      currency: 'KES',
+      minimumFractionDigits: 0,
+    }).format(product.price);
 
     return (
       <div key={product.id} className="bg-gradient-to-r from-gray-700 to-gray-800 p-6 rounded-lg shadow-lg">
-        <h3 className="text-2xl font-bold text-white mb-4">{product.name}</h3>
+        <h3 className="text-2xl font-semibold text-white mb-4">{product.name}</h3>
         <div className="relative w-full max-w-4xl mx-auto">
           <div className="relative w-full h-96 sm:h-[28rem] lg:h-[32rem] overflow-hidden rounded-lg">
             <img
@@ -193,14 +169,14 @@ const MensSuits: React.FC = () => {
             />
             <button
               onClick={() => handleImageChange(fabricKey, 'prev')}
-              className="absolute left-2 top-1/2 transform -translate-y-1/2 bg-gray-700 bg-opacity-50 text-white p-2 rounded-full hover:bg-opacity-75 transition"
+              className="absolute left-2 top-1/2 transform -translate-y-1/2 bg-gray-700 bg-opacity-50 text-white p-2 rounded-full hover:bg-opacity-75"
               aria-label="Previous Image"
             >
               <ChevronLeft size={24} />
             </button>
             <button
               onClick={() => handleImageChange(fabricKey, 'next')}
-              className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-gray-700 bg-opacity-50 text-white p-2 rounded-full hover:bg-opacity-75 transition"
+              className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-gray-700 bg-opacity-50 text-white p-2 rounded-full hover:bg-opacity-75"
               aria-label="Next Image"
             >
               <ChevronRight size={24} />
@@ -210,7 +186,7 @@ const MensSuits: React.FC = () => {
           <div className="mt-4 text-gray-400">Available Sizes: {product.sizes.join(', ')}</div>
           <div className="mt-2 text-gray-400">Available Colors: {product.colors.join(', ')}</div>
           <div className="mt-2 text-gray-200 font-semibold">Price: {price}</div>
-          <Button className="mt-4" size="lg" onClick={() => handleAddToCart(product)}>
+          <Button className="mt-4" size="lg" onClick={() => handleAddToCart(product)} disabled={isAdding}>
             Add to Cart
           </Button>
         </div>
@@ -224,7 +200,7 @@ const MensSuits: React.FC = () => {
         <div
           className="absolute inset-0 z-0"
           style={{
-            backgroundImage: `url(${placeholderImage})`, // Replace with menHero if in src
+            backgroundImage: `url(${placeholderImage})`,
             backgroundSize: 'cover',
             backgroundPosition: 'center',
             filter: 'brightness(0.6)',
@@ -294,35 +270,43 @@ const MensSuits: React.FC = () => {
           <p className="text-gray-400 text-center mb-12 max-w-2xl mx-auto">
             Coming soon: Accessories to elevate your suit to the perfect outfit.
           </p>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {[...Array(4)].map((_, i) => (
-              <div key={i} className="bg-gray-800 p-6 rounded-lg shadow-md opacity-70">
-                <div className="w-full h-48 bg-gray-700 rounded-md flex items-center justify-center">
-                  <span className="text-gray-400">Coming Soon</span>
-                </div>
-                <h3 className="text-xl font-semibold text-gray-400 mt-4">Section {i + 1}</h3>
-                <p className="text-gray-500">More details coming soon.</p>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="bg-gray-800 p-6 rounded-lg opacity-70">
+              <div className="w-full h-48 bg-gray-700 rounded-lg mb-4 flex items-center justify-center">
+                <span className="text-gray-400">Ties & Bowties</span>
               </div>
-            ))}
+              <h3 className="text-xl font-semibold text-gray-400">Ties & Bowties</h3>
+              <p className="text-gray-400">Coming soon!</p>
+            </div>
+            <div className="bg-gray-800 p-6 rounded-lg opacity-70">
+              <div className="w-full h-48 bg-gray-700 rounded-lg mb-4 flex items-center justify-center">
+                <span className="text-gray-400">Cufflinks</span>
+              </div>
+              <h3 className="text-xl font-semibold text-gray-400">Cufflinks</h3>
+              <p className="text-gray-400">Coming soon!</p>
+            </div>
+            <div className="bg-gray-800 p-6 rounded-lg opacity-70">
+              <div className="w-full h-48 bg-gray-700 rounded-lg mb-4 flex items-center justify-center">
+                <span className="text-gray-400">Pocket Squares</span>
+              </div>
+              <h3 className="text-xl font-semibold text-gray-400">Pocket Squares</h3>
+              <p className="text-gray-400">Coming soon!</p>
+            </div>
           </div>
         </div>
       </section>
 
-      <section className="py-16 bg-gradient-to-b from-gray-900 to-gray-950">
+      <section className="py-16 bg-gray-900">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h2 className="text-3xl md:text-4xl font-bold text-white mb-4 tracking-wide">
-            Craft Your Perfect Suit
+          <h2 className="text-3xl font-bold text-white mb-4">
+            Need a Custom Suit?
           </h2>
-          <p className="text-gray-300 mb-8 max-w-2xl mx-auto text-lg">
-            Experience the luxury of a suit tailored just for you by our expert craftsmen.
+          <p className="text-gray-400 mb-8 max-w-md mx-auto">
+            Design a suit tailored to your exact measurements and style preferences.
           </p>
           <Link to="/custom-tailoring">
-            <Button
-              size="lg"
-              className="bg-yellow-500 hover:bg-yellow-600 transition-transform transform hover:scale-105"
-            >
-              Schedule a Fitting
-              <ChevronRight className="ml-2" size={16} />
+            <Button size="lg">
+              Design Your Suit <ChevronRight className="ml-2" size={16} />
             </Button>
           </Link>
         </div>
