@@ -16,9 +16,13 @@ Route::post('/subscribe', [SubscriberController::class, 'store']);
 Route::post('/custom-tailoring', [CustomTailoringController::class, 'store'])->name('custom-tailoring.store');
 Route::post('/orders', [OrdersController::class, 'store']);
 Route::get('/orders/track', [OrdersController::class, 'track']);
-Route::get('/admin/orders', [AdminController::class, 'getOrders']);
-Route::put('/admin/orders/{id}', [AdminController::class, 'updateOrderStatus']);
-Route::get('/admin/subscribers', [AdminController::class, 'getSubscribers']);
+
+// Admin routes (require authentication)
+Route::middleware('auth:sanctum')->group(function () {
+    Route::get('/admin/orders', [AdminController::class, 'getOrders']);
+    Route::put('/admin/orders/{id}', [AdminController::class, 'updateOrderStatus']);
+    Route::get('/admin/subscribers', [AdminController::class, 'getSubscribers']);
+});
 
 // Authenticated user route
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {

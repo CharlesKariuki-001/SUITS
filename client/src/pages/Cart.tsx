@@ -11,6 +11,9 @@ import axios from 'axios';
 import { z } from 'zod';
 import { useCart } from '../context/CartContext';
 
+// Placeholder image for missing images
+const placeholderImage = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=';
+
 interface CartItem {
   id: number;
   name: string;
@@ -54,7 +57,7 @@ interface TrackResponse {
 }
 
 const orderFormSchema = z.object({
-  name: z.string().min(1, 'Name is required').max(255),
+  name: z.string().min(1, 'NameLa is required').max(255),
   email: z.string().email('Invalid email address').max(255),
   phone: z.string().min(10, 'Phone number must be at least 10 digits').regex(/^\+?[0-9]+$/, 'Invalid phone number').max(20),
 });
@@ -80,6 +83,9 @@ const Cart: React.FC = () => {
   const [isTracking, setIsTracking] = useState(false);
   const [newsletterEmail, setNewsletterEmail] = useState('');
   const [selectedItems, setSelectedItems] = useState<number[]>([]);
+
+  // Base URL for API (update for production)
+  const API_BASE_URL = process.env.REACT_APP_API_URL || 'https://yourdomain.com/api';
 
   useEffect(() => {
     const savedCart = JSON.parse(localStorage.getItem('cart') || '[]') as CartItem[];
@@ -163,7 +169,7 @@ const Cart: React.FC = () => {
       }
 
       setIsSubmitting(true);
-      const response = await axios.post<OrderResponse>('http://127.0.0.1:8000/api/orders', {
+      const response = await axios.post<OrderResponse>(`${API_BASE_URL}/orders`, {
         user_name: validated.name,
         user_email: validated.email,
         user_phone: validated.phone,
@@ -196,7 +202,7 @@ const Cart: React.FC = () => {
         const errors = err.errors.reduce((acc, e) => ({ ...acc, [e.path[0]]: e.message }), {});
         setFormErrors(errors);
       } else {
-        toast.error(err.response?.data?.message || 'Failed to place order', { duration: 4000 });
+        toast.error(err.response?.data?.message || 'Failed to place order. Please try again.', { duration: 4000 });
       }
     } finally {
       setIsSubmitting(false);
@@ -210,6 +216,7 @@ const Cart: React.FC = () => {
         toast.error('Please enter a valid email', { duration: 3000 });
         return;
       }
+      // TODO: Implement backend API to save cart
       toast.success(`Cart saved! Check ${email} for a link.`, { duration: 4000 });
     } catch {
       toast.error('Failed to save cart', { duration: 3000 });
@@ -221,14 +228,14 @@ const Cart: React.FC = () => {
     setIsTracking(true);
     try {
       const validated = trackingFormSchema.parse(trackingForm);
-      const response = await axios.get<TrackResponse>('http://127.0.0.1:8000/api/orders/track', {
+      const response = await axios.get<TrackResponse>(`${API_BASE_URL}/orders/track`, {
         params: { orderId: validated.orderId, emailOrPhone: validated.emailOrPhone },
         timeout: 10000,
       });
       setTrackingResult(response.data.data);
       toast.success('Order found!', { duration: 3000 });
     } catch (err: any) {
-      toast.error(err.response?.data?.message || 'Order not found', { duration: 4000 });
+      toast.error(err.response?.data?.message || 'Order not found. Please check your details.', { duration: 4000 });
     } finally {
       setIsTracking(false);
     }
@@ -241,11 +248,11 @@ const Cart: React.FC = () => {
       return;
     }
     try {
-      await axios.post('http://127.0.0.1:8000/api/subscribers', { email: newsletterEmail }, { timeout: 5000 });
+      await axios.post(`${API_BASE_URL}/subscribers`, { email: newsletterEmail }, { timeout: 5000 });
       toast.success('Subscribed to our newsletter!', { duration: 4000 });
       setNewsletterEmail('');
     } catch {
-      toast.error('Failed to subscribe', { duration: 3000 });
+      toast.error('Failed to subscribe. Please try again.', { duration: 3000 });
     }
   };
 
@@ -282,7 +289,7 @@ const Cart: React.FC = () => {
         <div
           className="absolute inset-0 z-0"
           style={{
-            backgroundImage: "url('/assets/images/HomeHero.jpg')",
+            backgroundImage: `url(${placeholderImage})`, // Replace with imported HomeHero.jpg if in src
             backgroundSize: 'cover',
             backgroundPosition: 'center',
             filter: 'brightness(0.6)',
@@ -378,10 +385,11 @@ const Cart: React.FC = () => {
                               />
                               {item.imageUrls?.[0] ? (
                                 <img
-                                  src={item.imageUrls[0]}
+                                  src={item.imageUrls[0] || placeholderImage}
                                   alt={item.name}
                                   className="w-16 h-16 object-cover rounded"
                                   loading="lazy"
+                                  onError={(e) => { e.currentTarget.src = placeholderImage; }}
                                 />
                               ) : (
                                 <div

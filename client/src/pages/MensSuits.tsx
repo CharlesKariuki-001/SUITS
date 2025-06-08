@@ -3,6 +3,9 @@ import { Link, useNavigate } from 'react-router-dom';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import Button from '../components/ui/Button';
 
+// Placeholder image for missing images
+const placeholderImage = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=';
+
 interface Product {
   id: number;
   name: string;
@@ -15,13 +18,15 @@ interface Product {
 }
 
 interface CartItem {
-  productId: number;
+  id: number;
   name: string;
   price: number;
   quantity: number;
   imageUrls: string[];
   description: string;
+  itemType: 'standard' | 'custom';
   customDescription?: string;
+  fabric?: string;
 }
 
 const MensSuits: React.FC = () => {
@@ -32,6 +37,31 @@ const MensSuits: React.FC = () => {
     highCheck: 0,
     superWool: 0,
   });
+
+  // If images are in src/assets/images/, import them like this:
+  /*
+  import normalPlain1 from '../assets/images/MensSuitNormalPlain-1.png';
+  import normalPlain2 from '../assets/images/MensSuitNormalPlain-2.png';
+  import normalPlain3 from '../assets/images/MensSuitNormalPlain-3.png';
+  import normalPlain4 from '../assets/images/MensSuitNormalPlain-4.png';
+  import normalPlain5 from '../assets/images/MensSuitNormalPlain-5.png';
+  import standardPlain1 from '../assets/images/MensSuitStandardPlain-1.png';
+  import standardPlain2 from '../assets/images/MensSuitStandardPlain-2.png';
+  import standardPlain3 from '../assets/images/MensSuitStandardPlain-3.png';
+  import standardPlain4 from '../assets/images/MensSuitStandardPlain-4.png';
+  import standardPlain5 from '../assets/images/MensSuitStandardPlain-5.png';
+  import highCheck1 from '../assets/images/MensSuitHighCheck-1.png';
+  import highCheck2 from '../assets/images/MensSuitHighCheck-2.png';
+  import highCheck3 from '../assets/images/MensSuitHighCheck-3.png';
+  import highCheck4 from '../assets/images/MensSuitHighCheck-4.png';
+  import highCheck5 from '../assets/images/MensSuitHighCheck-5.png';
+  import superWool1 from '../assets/images/MensSuitSuperWool-1.png';
+  import superWool2 from '../assets/images/MensSuitSuperWool-2.png';
+  import superWool3 from '../assets/images/MensSuitSuperWool-3.png';
+  import superWool4 from '../assets/images/MensSuitSuperWool-4.png';
+  import superWool5 from '../assets/images/MensSuitSuperWool-5.png';
+  import menHero from '../assets/images/Men.jpg';
+  */
 
   const products: Product[] = [
     {
@@ -47,6 +77,7 @@ const MensSuits: React.FC = () => {
         '/assets/images/MensSuitNormalPlain-3.png',
         '/assets/images/MensSuitNormalPlain-4.png',
         '/assets/images/MensSuitNormalPlain-5.png',
+        // If using src, replace with: [normalPlain1, normalPlain2, normalPlain3, normalPlain4, normalPlain5],
       ],
       description: 'A versatile and affordable suit crafted from normal quality plain fabric. Ideal for everyday elegance with a clean, classic design. Available in all colors, negotiable price starting at 12,000 KES.',
     },
@@ -63,6 +94,7 @@ const MensSuits: React.FC = () => {
         '/assets/images/MensSuitStandardPlain-3.png',
         '/assets/images/MensSuitStandardPlain-4.png',
         '/assets/images/MensSuitStandardPlain-5.png',
+        // If using src, replace with: [standardPlain1, standardPlain2, standardPlain3, standardPlain4, standardPlain5],
       ],
       description: 'A reliable suit crafted from standard quality plain fabric, offering a balance of durability and style. Perfect for versatile wear. Available in all colors, negotiable price starting at 13,000 KES.',
     },
@@ -74,11 +106,12 @@ const MensSuits: React.FC = () => {
       sizes: ['S', 'M', 'L', 'XL'],
       colors: ['Black', 'Navy', 'Grey', 'White'],
       imageUrls: [
-        '/assets/images/MensSuitHighCheck-1.jpg',
-        '/assets/images/MensSuitHighCheck-2.jpg',
-        '/assets/images/MensSuitHighCheck-3.jpg',
-        '/assets/images/MensSuitHighCheck-4.jpg',
-        '/assets/images/MensSuitHighCheck-5.jpg',
+        '/assets/images/MensSuitHighCheck-1.png',
+        '/assets/images/MensSuitHighCheck-2.png',
+        '/assets/images/MensSuitHighCheck-3.png',
+        '/assets/images/MensSuitHighCheck-4.png',
+        '/assets/images/MensSuitHighCheck-5.png',
+        // If using src, replace with: [highCheck1, highCheck2, highCheck3, highCheck4, highCheck5],
       ],
       description: 'A stylish suit with a high check pattern, blending modern design with classic tailoring. Ideal for making a statement. Available in all colors, negotiable price starting at 15,000 KES.',
     },
@@ -90,11 +123,12 @@ const MensSuits: React.FC = () => {
       sizes: ['S', 'M', 'L', 'XL'],
       colors: ['Black', 'Navy', 'Grey', 'White'],
       imageUrls: [
-        '/assets/images/MensSuitSuperWool-1.jpg',
-        '/assets/images/MensSuitSuperWool-2.jpg',
-        '/assets/images/MensSuitSuperWool-3.jpg',
-        '/assets/images/MensSuitSuperWool-4.jpg',
-        '/assets/images/MensSuitSuperWool-5.jpg',
+        '/assets/images/MensSuitSuperWool-1.png',
+        '/assets/images/MensSuitSuperWool-2.png',
+        '/assets/images/MensSuitSuperWool-3.png',
+        '/assets/images/MensSuitSuperWool-4.png',
+        '/assets/images/MensSuitSuperWool-5.png',
+        // If using src, replace with: [superWool1, superWool2, superWool3, superWool4, superWool5],
       ],
       description: 'A luxurious suit made from premium super wool fabric, offering unmatched softness and durability. Perfect for formal occasions. Available in all colors, negotiable price starting at 25,000 KES.',
     },
@@ -119,15 +153,19 @@ const MensSuits: React.FC = () => {
   const handleAddToCart = (product: Product) => {
     const cart = JSON.parse(localStorage.getItem('cart') || '[]') as CartItem[];
     const cartItem: CartItem = {
-      productId: product.id,
+      id: product.id,
       name: product.name,
       price: product.price,
       quantity: 1,
       imageUrls: product.imageUrls,
       description: product.description,
+      itemType: 'standard',
       customDescription: '',
+      fabric: product.name, // Pass fabric name for delivery estimation
     };
-    const existingItemIndex = cart.findIndex((item) => item.productId === product.id);
+    const existingItemIndex = cart.findIndex(
+      (item) => item.id === product.id && item.itemType === 'standard'
+    );
     if (existingItemIndex > -1) {
       cart[existingItemIndex].quantity += 1;
     } else {
@@ -147,9 +185,11 @@ const MensSuits: React.FC = () => {
         <div className="relative w-full max-w-4xl mx-auto">
           <div className="relative w-full h-96 sm:h-[28rem] lg:h-[32rem] overflow-hidden rounded-lg">
             <img
-              src={product.imageUrls[currentIndex]}
+              src={product.imageUrls[currentIndex] || placeholderImage}
               alt={`${product.name} Image ${currentIndex + 1}`}
               className="w-full h-full object-cover transition-opacity duration-300"
+              loading="lazy"
+              onError={(e) => { e.currentTarget.src = placeholderImage; }}
             />
             <button
               onClick={() => handleImageChange(fabricKey, 'prev')}
@@ -184,7 +224,7 @@ const MensSuits: React.FC = () => {
         <div
           className="absolute inset-0 z-0"
           style={{
-            backgroundImage: "url('/assets/images/Men.jpg')",
+            backgroundImage: `url(${placeholderImage})`, // Replace with menHero if in src
             backgroundSize: 'cover',
             backgroundPosition: 'center',
             filter: 'brightness(0.6)',

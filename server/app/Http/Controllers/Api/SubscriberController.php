@@ -11,6 +11,7 @@ class SubscriberController extends Controller
 {
     public function store(Request $request)
     {
+        // Validate email format and uniqueness
         $validator = Validator::make($request->all(), [
             'email' => 'required|email|unique:subscribers,email',
         ]);
@@ -22,9 +23,11 @@ class SubscriberController extends Controller
             ], 422);
         }
 
+        // Store email in the database
         try {
             Subscriber::create([
-                'email' => $request->email,
+                'email' => $request->input('email'),
+                'verified' => false, // Set to false since no external verification
             ]);
 
             return response()->json([

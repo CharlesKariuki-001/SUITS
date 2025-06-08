@@ -9,7 +9,7 @@ class Kernel extends HttpKernel
     protected $middleware = [
         // Global Middleware
         \App\Http\Middleware\TrustProxies::class,
-        \Fruitcake\Cors\HandleCors::class, // Handles CORS using fruitcake/laravel-cors
+        \Barryvdh\Cors\HandleCors::class, // Handles CORS using barryvdh/laravel-cors
         \App\Http\Middleware\RemoveTrailingSlash::class, // Prevent trailing slash redirects
         \App\Http\Middleware\PreventRequestsDuringMaintenance::class,
         \Illuminate\Foundation\Http\Middleware\ValidatePostSize::class,
@@ -34,7 +34,6 @@ class Kernel extends HttpKernel
     ];
 
     protected $routeMiddleware = [
-        'cors' => \App\Http\Middleware\CorsMiddleware::class, // Custom CORS middleware as a fallback
         'auth' => \App\Http\Middleware\Authenticate::class,
         'auth.basic' => \Illuminate\Auth\Middleware\AuthenticateWithBasicAuth::class,
         'auth.session' => \Illuminate\Session\Middleware\AuthenticateSession::class,
@@ -45,6 +44,6 @@ class Kernel extends HttpKernel
         'signed' => \App\Http\Middleware\ValidateSignature::class,
         'throttle' => \Illuminate\Routing\Middleware\ThrottleRequests::class,
         'verified' => \Illuminate\Auth\Middleware\EnsureEmailIsVerified::class,
-        'admin' => \App\Http\Middleware\AdminMiddleware::class, // Moved from global middleware
+        'admin' => \App\Http\Middleware\AdminMiddleware::class,
     ];
 }

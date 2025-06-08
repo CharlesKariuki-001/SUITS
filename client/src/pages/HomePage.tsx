@@ -3,13 +3,14 @@ import { Link } from 'react-router-dom';
 import { ChevronRight, Ruler, Users, Package } from 'lucide-react';
 import Button from '../components/ui/Button';
 
+// Placeholder image for missing images
+const placeholderImage = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=';
+
 interface Product {
   id: string;
   name: string;
   imageUrls: string[];
 }
-
-
 
 const HomePage: React.FC = () => {
   const [featuredMensProducts, setFeaturedMensProducts] = useState<Product[]>([]);
@@ -21,7 +22,7 @@ const HomePage: React.FC = () => {
 
   const hardcodedMensProducts: Product[] = [
     { id: 'featured-men-1', name: 'Light grey pinstripe suit, tailored fit, classic-modern fusion — for men', imageUrls: ['/assets/images/FeaturedMen1.jpeg'] },
-    { id: 'featured-men-2', name: 'Modern Charlcoal Suit for Men', imageUrls: ['/assets/images/FeaturedMen2.jpeg'] },
+    { id: 'featured-men-2', name: 'Modern Charcoal Suit for Men', imageUrls: ['/assets/images/FeaturedMen2.jpeg'] },
     { id: 'featured-men-3', name: 'Navy blue pinstripe suit, sharp fit, bold and elegant — for men', imageUrls: ['/assets/images/FeaturedMen3.jpeg'] },
   ];
 
@@ -37,7 +38,7 @@ const HomePage: React.FC = () => {
         const response = { data: { data: [...hardcodedMensProducts, ...hardcodedWomensProducts] } };
         const transformedProducts = response.data.data.map(product => ({
           ...product,
-          imageUrls: product.imageUrls.length > 0 ? product.imageUrls : ['/assets/images/placeholder.jpg'],
+          imageUrls: product.imageUrls.length > 0 ? product.imageUrls : [placeholderImage],
         }));
 
         const mensProducts = transformedProducts.filter(p => /men/i.test(p.name));
@@ -55,14 +56,14 @@ const HomePage: React.FC = () => {
     fetchProducts();
   }, []);
 
-  const isValidEmail = (email: string) => {
+  const isValidEmailFormat = (email: string) => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return emailRegex.test(email) && !email.includes('invalid') && !email.includes('test');
+    return emailRegex.test(email);
   };
 
   const handleSubscribe = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!isValidEmail(email)) {
+    if (!isValidEmailFormat(email)) {
       setPopupMessage('Please enter a valid email address (e.g., example@domain.com).');
       setShowPopup(true);
       return;
@@ -70,7 +71,7 @@ const HomePage: React.FC = () => {
 
     setIsSubmitting(true);
     try {
-      const response = await fetch('http://127.0.0.1:8000/api/subscribe', {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/subscribe`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -85,7 +86,6 @@ const HomePage: React.FC = () => {
       }
       setPopupMessage(data.message);
     } catch (error: any) {
-      console.error('Error subscribing:', error);
       setPopupMessage(error.message || 'An error occurred while subscribing. Please try again.');
     } finally {
       setShowPopup(true);
@@ -94,9 +94,8 @@ const HomePage: React.FC = () => {
     }
   };
 
-  const handleImageError = (e: React.SyntheticEvent<HTMLImageElement, Event>, imagePath: string) => {
-    console.error(`Failed to load image at path: ${imagePath}`);
-    (e.target as HTMLImageElement).style.display = 'none';
+  const handleImageError = (e: React.SyntheticEvent<HTMLImageElement, Event>) => {
+    e.currentTarget.src = placeholderImage;
   };
 
   return (
@@ -109,7 +108,8 @@ const HomePage: React.FC = () => {
             alt="Hero Background"
             className="h-full w-full object-cover"
             style={{ filter: 'brightness(0.6)' }}
-            onError={(e) => handleImageError(e, '/assets/images/HomeHero.jpeg')}
+            onError={handleImageError}
+            loading="lazy"
           />
         </div>
         <div className="absolute inset-0 bg-gradient-to-t from-gray-900 via-gray-900/40 to-transparent z-10" />
@@ -117,7 +117,7 @@ const HomePage: React.FC = () => {
           <div className="container mx-auto px-4 sm:px-6 lg:px-8">
             <div className="max-w-2xl">
               <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white leading-tight mb-4">
-                <span className="text-gold-500">Don's Customs</span>
+                <span className="text-yellow-500">Don's Custom Clothiers</span>
               </h1>
               <p className="text-lg md:text-xl text-gray-200 mb-8 max-w-md">
                 Handcrafted suits designed for the perfect fit. Experience the luxury of Kenyan craftsmanship.
@@ -146,14 +146,15 @@ const HomePage: React.FC = () => {
                   src="/assets/images/Men.jpeg"
                   alt="Men's Collection"
                   className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
-                  onError={(e) => handleImageError(e, '/assets/images/Men.jpeg')}
+                  onError={handleImageError}
+                  loading="lazy"
                 />
               </div>
               <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent z-10" />
               <div className="absolute bottom-0 left-0 right-0 p-8 z-20">
                 <h3 className="text-2xl font-bold text-white mb-2">Men's Collection</h3>
                 <p className="text-gray-300 mb-4">Timeless suits for the modern gentleman</p>
-                <div className="flex items-center text-gold-500 font-medium">
+                <div className="flex items-center text-yellow-500 font-medium">
                   <span>Shop Now</span>
                   <ChevronRight size={16} className="ml-1 transition-transform group-hover:translate-x-1" />
                 </div>
@@ -165,14 +166,15 @@ const HomePage: React.FC = () => {
                   src="/assets/images/Women.jpeg"
                   alt="Women's Collection"
                   className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
-                  onError={(e) => handleImageError(e, '/assets/images/Women.jpeg')}
+                  onError={handleImageError}
+                  loading="lazy"
                 />
               </div>
               <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent z-10" />
               <div className="absolute bottom-0 left-0 right-0 p-8 z-20">
                 <h3 className="text-2xl font-bold text-white mb-2">Women's Collection</h3>
                 <p className="text-gray-300 mb-4">Bold and elegant suits for the modern woman</p>
-                <div className="flex items-center text-gold-500 font-medium">
+                <div className="flex items-center text-yellow-500 font-medium">
                   <span>Shop Now</span>
                   <ChevronRight size={16} className="ml-1 transition-transform group-hover:translate-x-1" />
                 </div>
@@ -194,7 +196,7 @@ const HomePage: React.FC = () => {
           <div className="mb-12">
             <div className="flex justify-between items-center mb-6">
               <h3 className="text-xl font-semibold text-white">Men's Favorites</h3>
-              <Link to="/mens" className="text-gold-500 hover:text-gold-400 flex items-center">
+              <Link to="/mens" className="text-yellow-500 hover:text-yellow-400 flex items-center">
                 <span>View All</span>
                 <ChevronRight size={16} className="ml-1" />
               </Link>
@@ -203,10 +205,11 @@ const HomePage: React.FC = () => {
               {featuredMensProducts.map(product => (
                 <div key={product.id} className="relative group overflow-hidden rounded-lg">
                   <img
-                    src={product.imageUrls[0]}
+                    src={product.imageUrls[0] || placeholderImage}
                     alt={product.name}
                     className="w-full h-64 object-cover object-top transition-transform duration-500 group-hover:scale-105"
-                    onError={(e) => handleImageError(e, product.imageUrls[0])}
+                    onError={handleImageError}
+                    loading="lazy"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                   <div className="absolute bottom-0 left-0 right-0 p-4">
@@ -221,7 +224,7 @@ const HomePage: React.FC = () => {
           <div>
             <div className="flex justify-between items-center mb-6">
               <h3 className="text-xl font-semibold text-white">Women's Favorites</h3>
-              <Link to="/womens" className="text-gold-500 hover:text-gold-400 flex items-center">
+              <Link to="/womens" className="text-yellow-500 hover:text-yellow-400 flex items-center">
                 <span>View All</span>
                 <ChevronRight size={16} className="ml-1" />
               </Link>
@@ -230,10 +233,11 @@ const HomePage: React.FC = () => {
               {featuredWomensProducts.map(product => (
                 <div key={product.id} className="relative group overflow-hidden rounded-lg">
                   <img
-                    src={product.imageUrls[0]}
+                    src={product.imageUrls[0] || placeholderImage}
                     alt={product.name}
                     className="w-full h-64 object-cover object-top transition-transform duration-500 group-hover:scale-105"
-                    onError={(e) => handleImageError(e, product.imageUrls[0])}
+                    onError={handleImageError}
+                    loading="lazy"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                   <div className="absolute bottom-0 left-0 right-0 p-4">
@@ -257,21 +261,21 @@ const HomePage: React.FC = () => {
               </p>
               <div className="space-y-4">
                 <div className="flex items-start">
-                  <Ruler className="text-gold-500 mt-1 mr-3" size={20} />
+                  <Ruler className="text-yellow-500 mt-1 mr-3" size={20} />
                   <div>
                     <h3 className="font-medium text-white">Perfect Measurements</h3>
                     <p className="text-gray-400 text-sm">Each suit is crafted to your exact measurements for the perfect fit.</p>
                   </div>
                 </div>
                 <div className="flex items-start">
-                  <Package className="text-gold-500 mt-1 mr-3" size={20} />
+                  <Package className="text-yellow-500 mt-1 mr-3" size={20} />
                   <div>
                     <h3 className="font-medium text-white">Premium Materials</h3>
                     <p className="text-gray-400 text-sm">Choose from a wide range of high-quality fabrics and materials.</p>
                   </div>
                 </div>
                 <div className="flex items-start">
-                  <Users className="text-gold-500 mt-1 mr-3" size={20} />
+                  <Users className="text-yellow-500 mt-1 mr-3" size={20} />
                   <div>
                     <h3 className="font-medium text-white">Expert Craftsmanship</h3>
                     <p className="text-gray-400 text-sm">Our skilled tailors bring decades of experience to every garment.</p>
@@ -279,7 +283,7 @@ const HomePage: React.FC = () => {
                 </div>
               </div>
               <div className="mt-8">
-                <Link to="/custom-tailoring">
+                <Link to="/contact">
                   <Button>Schedule a Fitting</Button>
                 </Link>
               </div>
@@ -290,11 +294,12 @@ const HomePage: React.FC = () => {
                   src="/assets/images/CustomTailor.jpeg"
                   alt="Custom Tailoring"
                   className="w-full h-auto"
-                  onError={(e) => handleImageError(e, '/assets/images/CustomTailor.jpeg')}
+                  onError={handleImageError}
+                  loading="lazy"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
                 <div className="absolute bottom-0 left-0 p-6">
-                  <p className="text-gold-500 font-semibold">BESPOKE SERVICE</p>
+                  <p className="text-yellow-500 font-semibold">BESPOKE SERVICE</p>
                   <h3 className="text-white text-xl font-bold">Tailored to Perfection</h3>
                 </div>
               </div>
@@ -310,13 +315,13 @@ const HomePage: React.FC = () => {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             <div className="bg-gray-800 p-6 rounded-lg">
               <div className="flex items-center mb-4">
-                <div className="h-px flex-1 bg-gold-500/50"></div>
+                <div className="h-px flex-1 bg-yellow-500/50"></div>
                 <div className="mx-2">
-                  <svg className="w-5 h-5 text-gold-500" fill="currentColor" viewBox="0 0 20 20">
+                  <svg className="w-5 h-5 text-yellow-500" fill="currentColor" viewBox="0 0 20 20">
                     <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path>
                   </svg>
                 </div>
-                <div className="h-px flex-1 bg-gold-500/50"></div>
+                <div className="h-px flex-1 bg-yellow-500/50"></div>
               </div>
               <p className="text-gray-300 italic mb-6">"The quality and fit of my suit exceeded all expectations. I've never had a suit that fits so perfectly. The attention to detail is remarkable."</p>
               <div className="flex items-center">
@@ -329,13 +334,13 @@ const HomePage: React.FC = () => {
             </div>
             <div className="bg-gray-800 p-6 rounded-lg">
               <div className="flex items-center mb-4">
-                <div className="h-px flex-1 bg-gold-500/50"></div>
+                <div className="h-px flex-1 bg-yellow-500/50"></div>
                 <div className="mx-2">
-                  <svg className="w-5 h-5 text-gold-500" fill="currentColor" viewBox="0 0 20 20">
+                  <svg className="w-5 h-5 text-yellow-500" fill="currentColor" viewBox="0 0 20 20">
                     <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path>
                   </svg>
                 </div>
-                <div className="h-px flex-1 bg-gold-500/50"></div>
+                <div className="h-px flex-1 bg-yellow-500/50"></div>
               </div>
               <p className="text-gray-300 italic mb-6">"As a woman in business, finding the perfect suit has always been a challenge. Kenya Bespoke delivered a suit that makes me feel powerful and confident."</p>
               <div className="flex items-center">
@@ -348,13 +353,13 @@ const HomePage: React.FC = () => {
             </div>
             <div className="bg-gray-800 p-6 rounded-lg">
               <div className="flex items-center mb-4">
-                <div className="h-px flex-1 bg-gold-500/50"></div>
+                <div className="h-px flex-1 bg-yellow-500/50"></div>
                 <div className="mx-2">
-                  <svg className="w-5 h-5 text-gold-500" fill="currentColor" viewBox="0 0 20 20">
+                  <svg className="w-5 h-5 text-yellow-500" fill="currentColor" viewBox="0 0 20 20">
                     <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path>
                   </svg>
                 </div>
-                <div className="h-px flex-1 bg-gold-500/50"></div>
+                <div className="h-px flex-1 bg-yellow-500/50"></div>
               </div>
               <p className="text-gray-300 italic mb-6">"The custom tailoring experience was exceptional. The team took their time to understand exactly what I wanted, and the final result was beyond impressive."</p>
               <div className="flex items-center">
@@ -385,7 +390,7 @@ const HomePage: React.FC = () => {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="Your email address"
-                className="flex-1 bg-gray-700 border border-gray-600 rounded-md px-4 py-3 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-gold-500 focus:border-transparent"
+                className="flex-1 bg-gray-700 border border-gray-600 rounded-md px-4 py-3 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-transparent"
                 required
               />
               <Button type="submit" disabled={isSubmitting}>

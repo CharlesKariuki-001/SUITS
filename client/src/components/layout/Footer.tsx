@@ -10,7 +10,7 @@ const Footer: React.FC = () => {
           {/* Brand */}
           <div className="col-span-1">
             <Link to="/" className="flex items-center mb-4">
-              <span className="text-gold-500 font-bold text-xl">KENYA BESPOKE</span>
+              <span className="text-gold-500 font-bold text-xl">Don's Custom Clothiers</span>
             </Link>
             <p className="text-sm mb-4">
               Premium bespoke suits made to order. Experience the perfect fit and exceptional quality with Kenya's finest suit makers.
@@ -99,17 +99,17 @@ const Footer: React.FC = () => {
               <li className="flex items-start">
                 <MapPin size={18} className="mr-2 mt-0.5 text-gold-500" />
                 <div>
-                  <p className="text-sm">84 Kimathi Street</p>
-                  <p className="text-sm">Nairobi, Kenya</p>
+                  <p className="text-sm">Intermark business center</p>
+                  <p className="text-sm">Taveta Rd, Nairobi, Kenya</p>
                 </div>
               </li>
               <li className="flex items-center">
                 <Phone size={18} className="mr-2 text-gold-500" />
-                <p className="text-sm">+254 712 345 678</p>
+                <p className="text-sm">+254 791 600 534</p>
               </li>
               <li className="flex items-center">
                 <Mail size={18} className="mr-2 text-gold-500" />
-                <p className="text-sm">info@kenyabespoke.com</p>
+                <p className="text-sm">donscustomclothiers@gmail.com</p>
               </li>
             </ul>
 
@@ -124,7 +124,7 @@ const Footer: React.FC = () => {
 
         <div className="border-t border-gray-800 mt-10 pt-6 flex flex-col md:flex-row justify-between items-center">
           <p className="text-sm mb-4 md:mb-0">
-            &copy; {new Date().getFullYear()} Kenya Bespoke Suits. All rights reserved.
+            &copy; {new Date().getFullYear()} Don's Custom Clothiers. All rights reserved.
           </p>
           <div className="flex space-x-4">
             <Link to="/privacy" className="text-sm text-gray-400 hover:text-gold-500 transition-colors">

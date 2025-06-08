@@ -30,37 +30,38 @@ const ContactUs: React.FC = () => {
 
   return (
     <div className="bg-gray-900 min-h-screen">
-      {/* Hero Section */}
-      <section className="relative h-[60vh] overflow-hidden">
-        <div
-          className="absolute inset-0 z-0"
-          style={{
-            backgroundImage: "url('https://images.unsplash.com/photo-1600585154340-be6161a56a0c?ixlib=rb-4.0.3&auto=format&fit=crop&w=1950&q=80')",
-            backgroundSize: 'cover',
-            backgroundPosition: 'center',
-            filter: 'brightness(0.6)',
-          }}
-        />
-        <div className="absolute inset-0 bg-gradient-to-t from-gray-900 via-gray-900/40 to-transparent z-10" />
-        <div className="relative z-20 h-full flex items-center">
-          <div className="container mx-auto px-4 sm:px-6 lg:px-8 text-center">
-            <h1 className="text-4xl md:text-5xl font-bold text-white leading-tight mb-4">
-              Get in Touch
-              <br />
-              <span className="text-gold-500">We’re Here to Help</span>
-            </h1>
-            <p className="text-lg md:text-xl text-gray-200 mb-8 max-w-xl mx-auto">
-              Have questions or ready to start your bespoke journey? Contact us today.
-            </p>
-            <Button
-              size="lg"
-              onClick={() => window.scrollTo({ top: 600, behavior: 'smooth' })}
-            >
-              Reach Out <ChevronRight className="ml-2" size={16} />
-            </Button>
-          </div>
-        </div>
-      </section>
+  {/* Hero Section */}
+<section className="relative h-[60vh] overflow-hidden">
+  <div
+    className="absolute inset-0 z-0"
+    style={{
+      backgroundImage: "url('/assets/images/GetInTouch.jpeg')",
+      backgroundSize: 'cover',
+      backgroundPosition: 'center',
+      filter: 'brightness(0.6)',
+    }}
+  />
+  <div className="absolute inset-0 bg-gradient-to-t from-gray-900 via-gray-900/40 to-transparent z-10" />
+  <div className="relative z-20 h-full flex items-center">
+    <div className="container mx-auto px-4 sm:px-6 lg:px-8 text-center">
+      <h1 className="text-4xl md:text-5xl font-bold text-white leading-tight mb-4">
+        Get in Touch
+        <br />
+        <span className="text-gold-500">We’re Here to Help</span>
+      </h1>
+      <p className="text-lg md:text-xl text-gray-200 mb-8 max-w-xl mx-auto">
+        Have questions or ready to start your bespoke journey? Contact us today.
+      </p>
+      <Button
+        size="lg"
+        onClick={() => window.scrollTo({ top: 600, behavior: 'smooth' })}
+      >
+        Reach Out <ChevronRight className="ml-2" size={16} />
+      </Button>
+    </div>
+  </div>
+</section>
+
 
       {/* Contact Form & Details Section */}
       <section className="py-16 bg-gray-950">
@@ -91,7 +92,7 @@ const ContactUs: React.FC = () => {
                     value={form.email}
                     onChange={e => setForm({ ...form, email: e.target.value })}
                     className="w-full bg-gray-800 text-white border border-gray-700 rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-gold-500"
-                    placeholder="your.email@example.com"
+                    placeholder="Your Email"
                     required
                   />
                 </div>
@@ -151,7 +152,7 @@ const ContactUs: React.FC = () => {
                   <div>
                     <h3 className="text-lg font-semibold text-white">Email</h3>
                     <p className="text-gray-300">
-                      <a href="mailto:info@kenyabespoke.com">info@kenyabespoke.com</a>
+                      <a href="mailto:info@kenyabespoke.com">donscustomclothiers@gmail.com</a>
                     </p>
                   </div>
                 </div>
@@ -160,7 +161,7 @@ const ContactUs: React.FC = () => {
                   <div>
                     <h3 className="text-lg font-semibold text-white">Phone</h3>
                     <p className="text-gray-300">
-                      <a href="tel:+254700123456">+254 700 123 456</a>
+                      <a href="tel:+254700123456">+254 791 600 534</a>
                     </p>
                   </div>
                 </div>
@@ -169,7 +170,7 @@ const ContactUs: React.FC = () => {
                   <div>
                     <h3 className="text-lg font-semibold text-white">Visit Us</h3>
                     <p className="text-gray-300">
-                      Westlands Road, Nairobi, Kenya<br />
+                     intermark business centre taveta road, Nairobi, Kenya.<br />
                       Mon - Fri: 9 AM - 6 PM
                     </p>
                   </div>
@@ -186,7 +187,7 @@ const ContactUs: React.FC = () => {
           <h2 className="text-3xl font-bold text-white mb-8 text-center">Find Us</h2>
           <div className="relative h-96 rounded-lg overflow-hidden">
             <iframe
-              src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3988.809050801342!2d36.81532971434414!3d-1.2756143990000003!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x182f17ec9b765d6d%3A0x8f66d7e7f8a6462a!2sWestlands%2C%20Nairobi!5e0!3m2!1sen!2ske!4v1715097600000!5m2!1sen!2ske"
+              src="https://maps.apple.com/?address=Taveta%20Road,%20Nairobi,%20Kenya&auid=8770336619641485117&ll=-1.283271,36.825586&lsp=9902&q=intermark%20business%20center&t=m"
               width="100%"
               height="100%"
               style={{ border: 0 }}
@@ -208,7 +209,7 @@ const ContactUs: React.FC = () => {
           </p>
           <Link to="/custom-tailoring">
             <Button size="lg">
-              Book a Fitting <ChevronRight className="ml-2" size={16} />
+              Design A Suit <ChevronRight className="ml-2" size={16} />
             </Button>
           </Link>
         </div>
